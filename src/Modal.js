@@ -1,24 +1,24 @@
 /* eslint-disable react/prop-types */
 
-import activeElement from 'dom-helpers/activeElement';
-import contains from 'dom-helpers/query/contains';
-import canUseDom from 'dom-helpers/util/inDOM';
-import PropTypes from 'prop-types';
-import componentOrElement from 'prop-types-extra/lib/componentOrElement';
-import deprecated from 'prop-types-extra/lib/deprecated';
-import elementType from 'prop-types-extra/lib/elementType';
-import React, { cloneElement } from 'react';
-import ReactDOM from 'react-dom';
-import warning from 'warning';
+import activeElement from "dom-helpers/activeElement";
+import contains from "dom-helpers/query/contains";
+import canUseDom from "dom-helpers/util/inDOM";
+import PropTypes from "prop-types";
+import componentOrElement from "prop-types-extra/lib/componentOrElement";
+import deprecated from "prop-types-extra/lib/deprecated";
+import elementType from "prop-types-extra/lib/elementType";
+import React, { cloneElement } from "react";
+import ReactDOM from "react-dom";
+import warning from "warning";
 
-import ModalManager from './ModalManager';
-import Portal from './Portal';
-import RefHolder from './RefHolder';
+import ModalManager from "./ModalManager";
+import Portal from "./Portal";
+import RefHolder from "./RefHolder";
 
-import addEventListener from './utils/addEventListener';
-import addFocusListener from './utils/addFocusListener';
-import getContainer from './utils/getContainer';
-import ownerDocument from './utils/ownerDocument';
+import addEventListener from "./utils/addEventListener";
+import addFocusListener from "./utils/addFocusListener";
+import getContainer from "./utils/getContainer";
+import ownerDocument from "./utils/ownerDocument";
 
 let modalManager = new ModalManager();
 
@@ -43,7 +43,6 @@ let modalManager = new ModalManager();
  * React hierarchy (such as the default: document.body).
  */
 class Modal extends React.Component {
-
   static propTypes = {
     ...Portal.propTypes,
 
@@ -58,10 +57,7 @@ class Modal extends React.Component {
      * For the sake of assistive technologies, the container should usually be the document body, so that the rest of the
      * page content can be placed behind a virtual backdrop as well as a visual one.
      */
-    container: PropTypes.oneOfType([
-      componentOrElement,
-      PropTypes.func
-    ]),
+    container: PropTypes.oneOfType([componentOrElement, PropTypes.func]),
 
     /**
      * A callback fired when the Modal is opening.
@@ -81,7 +77,7 @@ class Modal extends React.Component {
      */
     backdrop: PropTypes.oneOfType([
       PropTypes.bool,
-      PropTypes.oneOf(['static'])
+      PropTypes.oneOf(["static"])
     ]),
 
     /**
@@ -106,7 +102,7 @@ class Modal extends React.Component {
      */
     onEscapeKeyUp: deprecated(
       PropTypes.func,
-      'Please use onEscapeKeyDown instead for consistency'
+      "Please use onEscapeKeyDown instead for consistency"
     ),
 
     /**
@@ -205,7 +201,7 @@ class Modal extends React.Component {
      * A ModalManager instance used to track and manage the state of open
      * Modals. Useful when customizing how modals interact within a container
      */
-    manager: PropTypes.object.isRequired,
+    manager: PropTypes.object.isRequired
   };
 
   static defaultProps = {
@@ -215,16 +211,16 @@ class Modal extends React.Component {
     autoFocus: true,
     enforceFocus: true,
     restoreFocus: true,
-    onHide: ()=>{},
+    unmountOnExit: true,
+    onHide: () => {},
     manager: modalManager,
-    renderBackdrop: (props) => <div {...props} />
+    renderBackdrop: props => <div {...props} />
   };
 
   omitProps(props, propTypes) {
-
     const keys = Object.keys(props);
     const newProps = {};
-    keys.map((prop) => {
+    keys.map(prop => {
       if (!Object.prototype.hasOwnProperty.call(propTypes, prop)) {
         newProps[prop] = props[prop];
       }
@@ -233,7 +229,7 @@ class Modal extends React.Component {
     return newProps;
   }
 
-  state = {exited: !this.props.show};
+  state = { exited: !this.props.show };
 
   render() {
     const {
@@ -248,14 +244,15 @@ class Modal extends React.Component {
       onExiting,
       onEnter,
       onEntering,
-      onEntered
+      onEntered,
+      unmountOnExit
     } = this.props;
 
     let dialog = React.Children.only(children);
     const filteredProps = this.omitProps(this.props, Modal.propTypes);
 
     const mountModal = show || (Transition && !this.state.exited);
-    if (!mountModal) {
+    if (!mountModal && unmountOnExit) {
       return null;
     }
 
@@ -263,8 +260,8 @@ class Modal extends React.Component {
 
     if (role === undefined || tabIndex === undefined) {
       dialog = cloneElement(dialog, {
-        role: role === undefined ? 'document' : role,
-        tabIndex: tabIndex == null ? '-1' : tabIndex
+        role: role === undefined ? "document" : role,
+        tabIndex: tabIndex == null ? "-1" : tabIndex
       });
     }
 
@@ -272,7 +269,7 @@ class Modal extends React.Component {
       dialog = (
         <Transition
           appear
-          unmountOnExit
+          unmountOnExit={unmountOnExit}
           in={show}
           onExit={onExit}
           onExiting={onExiting}
@@ -294,15 +291,16 @@ class Modal extends React.Component {
       >
         <div
           ref={this.setModalNodeRef}
-          role={role || 'dialog'}
+          role={role || "dialog"}
           {...filteredProps}
-          style={style}
+          style={{
+            ...style,
+            visibility: mountModal ? 'visible': 'hidden'
+          }}
           className={className}
         >
           {backdrop && this.renderBackdrop()}
-          <RefHolder ref={this.setDialogRef}>
-            {dialog}
-          </RefHolder>
+          <RefHolder ref={this.setDialogRef}>{dialog}</RefHolder>
         </div>
       </Portal>
     );
@@ -313,23 +311,21 @@ class Modal extends React.Component {
       backdropStyle,
       backdropClassName,
       renderBackdrop,
-      backdropTransition: Transition } = this.props;
+      backdropTransition: Transition
+    } = this.props;
 
-    const backdropRef = ref => this.backdrop = ref;
+    const backdropRef = ref => (this.backdrop = ref);
 
     let backdrop = renderBackdrop({
       ref: backdropRef,
       style: backdropStyle,
       className: backdropClassName,
-      onClick: this.handleBackdropClick,
+      onClick: this.handleBackdropClick
     });
 
     if (Transition) {
       backdrop = (
-        <Transition
-          appear
-          in={this.props.show}
-        >
+        <Transition appear in={this.props.show}>
           {backdrop}
         </Transition>
       );
@@ -340,10 +336,10 @@ class Modal extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.show) {
-      this.setState({exited: false});
+      this.setState({ exited: false });
     } else if (!nextProps.transition) {
       // Otherwise let handleHidden take care of marking exited.
-      this.setState({exited: true});
+      this.setState({ exited: true });
     }
   }
 
@@ -363,11 +359,10 @@ class Modal extends React.Component {
   componentDidUpdate(prevProps) {
     let { transition } = this.props;
 
-    if ( prevProps.show && !this.props.show && !transition) {
+    if (prevProps.show && !this.props.show && !transition) {
       // Otherwise handleHidden will call this.
       this.onHide();
-    }
-    else if (!prevProps.show && this.props.show) {
+    } else if (!prevProps.show && this.props.show) {
       this.onShow();
     }
   }
@@ -396,14 +391,19 @@ class Modal extends React.Component {
 
     this.props.manager.add(this, container, this.props.containerClassName);
 
-    this._onDocumentKeydownListener =
-      addEventListener(doc, 'keydown', this.handleDocumentKeyDown);
+    this._onDocumentKeydownListener = addEventListener(
+      doc,
+      "keydown",
+      this.handleDocumentKeyDown
+    );
 
-    this._onDocumentKeyupListener =
-      addEventListener(doc, 'keyup', this.handleDocumentKeyUp);
+    this._onDocumentKeyupListener = addEventListener(
+      doc,
+      "keyup",
+      this.handleDocumentKeyUp
+    );
 
-    this._onFocusinListener =
-      addFocusListener(this.enforceFocus);
+    this._onFocusinListener = addFocusListener(this.enforceFocus);
   };
 
   onHide = () => {
@@ -420,15 +420,15 @@ class Modal extends React.Component {
     }
   };
 
-  setMountNode = (ref) => {
+  setMountNode = ref => {
     this.mountNode = ref ? ref.getMountNode() : ref;
   };
 
-  setModalNodeRef = (ref) => {
+  setModalNodeRef = ref => {
     this.modalNode = ref;
   };
 
-  setDialogRef = (ref) => {
+  setDialogRef = ref => {
     this.dialog = ref;
   };
 
@@ -441,7 +441,7 @@ class Modal extends React.Component {
     }
   };
 
-  handleBackdropClick = (e) => {
+  handleBackdropClick = e => {
     if (e.target !== e.currentTarget) {
       return;
     }
@@ -450,12 +450,12 @@ class Modal extends React.Component {
       this.props.onBackdropClick(e);
     }
 
-    if (this.props.backdrop === true){
+    if (this.props.backdrop === true) {
       this.props.onHide();
     }
   };
 
-  handleDocumentKeyDown = (e) => {
+  handleDocumentKeyDown = e => {
     if (this.props.keyboard && e.keyCode === 27 && this.isTopModal()) {
       if (this.props.onEscapeKeyDown) {
         this.props.onEscapeKeyDown(e);
@@ -465,7 +465,7 @@ class Modal extends React.Component {
     }
   };
 
-  handleDocumentKeyUp = (e) => {
+  handleDocumentKeyUp = e => {
     if (this.props.keyboard && e.keyCode === 27 && this.isTopModal()) {
       if (this.props.onEscapeKeyUp) {
         this.props.onEscapeKeyUp(e);
@@ -490,15 +490,15 @@ class Modal extends React.Component {
     if (dialogElement && !contains(dialogElement, currentActiveElement)) {
       this.lastFocus = currentActiveElement;
 
-      if (!dialogElement.hasAttribute('tabIndex')) {
+      if (!dialogElement.hasAttribute("tabIndex")) {
         warning(
           false,
-          'The modal content node does not accept focus. For the benefit of ' +
-          'assistive technologies, the tabIndex of the node is being set ' +
-          'to "-1".'
+          "The modal content node does not accept focus. For the benefit of " +
+            "assistive technologies, the tabIndex of the node is being set " +
+            'to "-1".'
         );
 
-        dialogElement.setAttribute('tabIndex', -1);
+        dialogElement.setAttribute("tabIndex", -1);
       }
 
       dialogElement.focus();
@@ -514,11 +514,7 @@ class Modal extends React.Component {
   }
 
   enforceFocus = () => {
-    if (
-      !this.props.enforceFocus ||
-      !this._isMounted ||
-      !this.isTopModal()
-    ) {
+    if (!this.props.enforceFocus || !this._isMounted || !this.isTopModal()) {
       return;
     }
 

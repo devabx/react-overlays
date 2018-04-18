@@ -6,6 +6,14 @@ Utilities for creating robust overlay components
 
 demos and docs at: https://react-bootstrap.github.io/react-overlays/
 
+## Forked from https://github.com/react-bootstrap/react-bootstrap
+
+this version is modified to have this props
+
+| Prop | default  | Description |
+|---------|---------|-------------|
+|unmountOnExit| true | if false the overlay will not unmount but instead it will have a `visibibility: hidden` style|
+
 ## Install
 
 ```sh

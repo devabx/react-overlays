@@ -1,5 +1,5 @@
 {
-  "name": "react-overlays",
+  "name": "@devabx/react-overlays",
   "version": "0.8.3",
   "description": "Utilities for creating robust overlay components",
   "author": "Jason Quense <monastic.panic@gmail.com>",
