@@ -295,7 +295,9 @@ class Modal extends React.Component {
           {...filteredProps}
           style={{
             ...style,
-            visibility: mountModal ? 'visible': 'hidden'
+            visibility: show ? 'visible' : 'hidden',
+            position: 'absolute',
+            width: '100%'
           }}
           className={className}
         >
