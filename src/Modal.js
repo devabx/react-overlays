@@ -1,24 +1,24 @@
 /* eslint-disable react/prop-types */
 
-import activeElement from "dom-helpers/activeElement";
-import contains from "dom-helpers/query/contains";
-import canUseDom from "dom-helpers/util/inDOM";
-import PropTypes from "prop-types";
-import componentOrElement from "prop-types-extra/lib/componentOrElement";
-import deprecated from "prop-types-extra/lib/deprecated";
-import elementType from "prop-types-extra/lib/elementType";
-import React, { cloneElement } from "react";
-import ReactDOM from "react-dom";
-import warning from "warning";
+import activeElement from 'dom-helpers/activeElement';
+import contains from 'dom-helpers/query/contains';
+import canUseDom from 'dom-helpers/util/inDOM';
+import PropTypes from 'prop-types';
+import componentOrElement from 'prop-types-extra/lib/componentOrElement';
+import deprecated from 'prop-types-extra/lib/deprecated';
+import elementType from 'prop-types-extra/lib/elementType';
+import React, { cloneElement } from 'react';
+import ReactDOM from 'react-dom';
+import warning from 'warning';
 
-import ModalManager from "./ModalManager";
-import Portal from "./Portal";
-import RefHolder from "./RefHolder";
+import ModalManager from './ModalManager';
+import Portal from './Portal';
+import RefHolder from './RefHolder';
 
-import addEventListener from "./utils/addEventListener";
-import addFocusListener from "./utils/addFocusListener";
-import getContainer from "./utils/getContainer";
-import ownerDocument from "./utils/ownerDocument";
+import addEventListener from './utils/addEventListener';
+import addFocusListener from './utils/addFocusListener';
+import getContainer from './utils/getContainer';
+import ownerDocument from './utils/ownerDocument';
 
 let modalManager = new ModalManager();
 
@@ -77,7 +77,7 @@ class Modal extends React.Component {
      */
     backdrop: PropTypes.oneOfType([
       PropTypes.bool,
-      PropTypes.oneOf(["static"])
+      PropTypes.oneOf(['static'])
     ]),
 
     /**
@@ -102,7 +102,7 @@ class Modal extends React.Component {
      */
     onEscapeKeyUp: deprecated(
       PropTypes.func,
-      "Please use onEscapeKeyDown instead for consistency"
+      'Please use onEscapeKeyDown instead for consistency'
     ),
 
     /**
@@ -198,6 +198,10 @@ class Modal extends React.Component {
     onExited: PropTypes.func,
 
     /**
+     * when false it will not remove the modal body from the dom
+     */
+    unmountOnExit: PropTypes.bool,
+    /**
      * A ModalManager instance used to track and manage the state of open
      * Modals. Useful when customizing how modals interact within a container
      */
@@ -260,8 +264,8 @@ class Modal extends React.Component {
 
     if (role === undefined || tabIndex === undefined) {
       dialog = cloneElement(dialog, {
-        role: role === undefined ? "document" : role,
-        tabIndex: tabIndex == null ? "-1" : tabIndex
+        role: role === undefined ? 'document' : role,
+        tabIndex: tabIndex == null ? '-1' : tabIndex
       });
     }
 
@@ -291,7 +295,7 @@ class Modal extends React.Component {
       >
         <div
           ref={this.setModalNodeRef}
-          role={role || "dialog"}
+          role={role || 'dialog'}
           {...filteredProps}
           style={{
             ...style,
@@ -395,13 +399,13 @@ class Modal extends React.Component {
 
     this._onDocumentKeydownListener = addEventListener(
       doc,
-      "keydown",
+      'keydown',
       this.handleDocumentKeyDown
     );
 
     this._onDocumentKeyupListener = addEventListener(
       doc,
-      "keyup",
+      'keyup',
       this.handleDocumentKeyUp
     );
 
@@ -492,15 +496,15 @@ class Modal extends React.Component {
     if (dialogElement && !contains(dialogElement, currentActiveElement)) {
       this.lastFocus = currentActiveElement;
 
-      if (!dialogElement.hasAttribute("tabIndex")) {
+      if (!dialogElement.hasAttribute('tabIndex')) {
         warning(
           false,
-          "The modal content node does not accept focus. For the benefit of " +
-            "assistive technologies, the tabIndex of the node is being set " +
+          'The modal content node does not accept focus. For the benefit of ' +
+            'assistive technologies, the tabIndex of the node is being set ' +
             'to "-1".'
         );
 
-        dialogElement.setAttribute("tabIndex", -1);
+        dialogElement.setAttribute('tabIndex', -1);
       }
 
       dialogElement.focus();
